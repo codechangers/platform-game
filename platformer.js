@@ -1,4 +1,5 @@
 var stage = new createjs.Stage("game-canvas");
+var loader;
 var w, h;
 var keys = {};
 var gravity = 0.2;
@@ -38,10 +39,12 @@ function init() {
   h = stage.canvas.height;
 
   manifest = [
-    {src: "http://codechangers.com/files/camp/assets/art/spritesheet_boy.png", id: "grant"},
-    {src: "http://codechangers.com/files/camp/assets/art/spritesheet_girl.png", id: "may"},
-    {src: "http://codechangers.com/files/camp/assets/art/spritesheet_girl_2.png", id: "jill"},
-    {src: "http://codechangers.com/files/camp/assets/art/background.png", id: "sky"},
+    {src: "./_assets/art/spritesheet_boy.png", id: "grant"},
+    {src: "./_assets/art/spritesheet_girl.png", id: "may"},
+    {src: "./_assets/art/spritesheet_girl_2.png", id: "jill"},
+    {src: "./_assets/art/background.png", id: "sky"},
+    {src: "./_assets/art/grass_top.png", id: "grass_top"},
+    {src: "./_assets/art/grass_mid.png", id: "grass_mid"},
     // {src: "ground.png", id: "ground"},
     // {src: "hill1.png", id: "hill"},
     // {src: "hill2.png", id: "hill2"}
@@ -49,17 +52,17 @@ function init() {
 
   loader = new createjs.LoadQueue(false);
   loader.addEventListener("complete", handleComplete);
-  loader.loadManifest(manifest, true, "http://codechangers.com/files/camp/assets/art/");
+  loader.loadManifest(manifest, true, "./_assets/art/");
 }
 
 function handleComplete() {
   bg = new Image();
-  bg.src = "http://codechangers.com/files/camp/assets/art/background.png";
+  bg.src = "./_assets/art/background.png";
   bg.onload = function () {
     sky = new createjs.Shape();
     sky.graphics.beginBitmapFill(bg).drawRect(0, 0, w + 50, h);
     stage.addChild(sky);
-    stage.addChild(grant, ground);
+    stage.addChild(ground, grant);
   }
 	ground = new createjs.Shape();
 	ground.graphics.beginFill("green").drawRect(0, 416, w, h);
@@ -67,7 +70,7 @@ function handleComplete() {
   grant_spriteSheet = new createjs.SpriteSheet({
 		framerate: 6,
 		"images": [loader.getResult("jill")],
-		"frames": {"width":48, "height":48, "count":4, "regX": 32, "regY":32, "spacing":1, "margin":0},
+		"frames": {"width":48, "height":48, "count":4, "regX": 0, "regY":0, "spacing":1, "margin":0},
 		// define two animations, run (loops, 1.5x speed) and jump (returns to run):
 		"animations": {
       "stand": {
@@ -106,8 +109,20 @@ function handleComplete() {
   };
 
   grant.in_air = function () {
+    // var flag = false;
+    // for (var i = 0; i < stage_tiles.length; i++) {
+    //   tile = stage_tiles[i];
+    //   if (grant.x < tile.x + tile.width &&
+    //      grant.x + grant.width > tile.x &&
+    //      grant.y < tile.y + tile.height &&
+    //      grant.height + grant.y > tile.y) {
+    //        console.log("holy shit")
+    //       return false;
+    //   }
+    // }
+    // return true;
     return grant.y < 400;
-  }
+  };
 
   grant.move_left = function(speed) {
     grant.x -= speed;

@@ -27,7 +27,3 @@ function jump() {
         grant.jumping = false;
     }
 }
-
-function shoot() {
-  add_bullet();
-}
