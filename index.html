@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <title>Platform Game</title>
-        <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
+        <script src="https://code.createjs.com/createjs-2015.11.26.combined.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/humane-js/3.2.2/humane.min.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/humane-js/3.2.2/themes/flatty.min.css" media="screen" title="no title" charset="utf-8">
         <style media="screen">
@@ -90,7 +90,7 @@
         <canvas id="game-canvas" width="500" height="500"></canvas>
 
         <!-- <script src="student.js"></script> -->
-        <script src="platformer.js"></script>
+        <script src="http://codechangers.com/files/camp/assets/platformer.js"></script>
         <script>
             humane.timeout = 1250;
 
@@ -109,7 +109,7 @@
             function load_code() {
                 if(localStorage.getItem("code")) {
                     editor.setValue(localStorage.getItem("code"));
-                    ev(localStorage.getItem("code"));
+                    // ev(localStorage.getItem("code"));
                 }
             }
 

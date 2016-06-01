@@ -38,8 +38,9 @@ function init() {
   h = stage.canvas.height;
 
   manifest = [
+    {src: "http://codechangers.com/files/camp/assets/art/spritesheet_mario.png", id: "mario"},
     {src: "http://codechangers.com/files/camp/assets/art/spritesheet_boy.png", id: "grant"},
-    {src: "http://codechangers.com/files/camp/assets/art/spritesheet_girl.png", id: "may"},
+    {src: "http://codechangers.com/files/camp/assets/art/spritesheet_girl.png", id: "ada"},
     {src: "http://codechangers.com/files/camp/assets/art/spritesheet_girl_2.png", id: "jill"},
     {src: "http://codechangers.com/files/camp/assets/art/background.png", id: "sky"},
     // {src: "ground.png", id: "ground"},
@@ -188,6 +189,7 @@ function add_bullet() {
 
 function switch_character(character) {
   switch(character) {
+    case "mario":
     case "jill":
     case "grant":
     case "ada":
@@ -216,6 +218,7 @@ function switch_character(character) {
       grant.spriteSheet = new_spriteSheet;
       break;
     default:
+      switch_character("grant");
       return;
   }
 }
