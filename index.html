@@ -89,8 +89,9 @@
         <div id="pause-overlay"><h1>&#9208; Paused</h1></div>
         <canvas id="game-canvas" width="500" height="500"></canvas>
 
+        <script src="levels.js"></script>
         <!-- <script src="student.js"></script> -->
-        <script src="http://codechangers.com/files/camp/assets/platformer.js"></script>
+        <script src="platformer.js"></script>
         <script>
             humane.timeout = 1250;
 
@@ -109,7 +110,7 @@
             function load_code() {
                 if(localStorage.getItem("code")) {
                     editor.setValue(localStorage.getItem("code"));
-                    // ev(localStorage.getItem("code"));
+                    ev(localStorage.getItem("code"));
                 }
             }
 

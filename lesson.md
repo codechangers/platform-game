@@ -2,8 +2,8 @@
 
 ## WHAT is the platform game?
 -----------------------------
-This project is a game that will introduce students to programming by having them
-write code to add features.
+This project is a game that will expose students to practical uses of JavaScript.
+
 
 ## WHY are we doing this project?
 ---------------------------------
@@ -14,19 +14,15 @@ understand that program code controls what a computer does.
 ----------------------------------
 
 ### Goal 1: Make a movement function.
-On the left side of the page (the code side), add two lines of code. They should
-look like this.
+On the left side of the page (the code side), add a new function called "move".
+This function will be called about 60 times per second, and will allow us to
+make our character, Grant, move.
 
 ```js
 function move() {
 
 }
 ```
-
-This is the function we will use to make our character, Grant, move. Functions are
-a name for a group of code that goes together. Think about a recipe: all of the instructions
-are grouped together on the page, and the recipe has a name. The recipe for "Cheese Pizza"
-tells you how to make a cheese pizza. This is kind of like that.
 
 Now that we have our movement function, we need to do four steps to make Grant start
 running.
@@ -54,13 +50,10 @@ function move() {
 }
 ```
 
-We use the curly braces ("{}") to group code together. In our `move` function,
-we have three groups:
-1. The first group will run if the left arrow key is pressed.
-2. The second group will run if the right arrow key is pressed.
-3. The third group will run if no arrow keys are pressed.
+The next step after checking if a key is pressed is to make Grant look in the right
+direction. It would look pretty strange if grant was looking left but moving right.
 
-Let's fill in our groups. Add two more lines to your function.
+We can use Grant's built-in "look" function to change his direction.
 
 ```js
 function move() {
@@ -84,7 +77,7 @@ step again.
 
 These are the four steps to make Grant move:
 1. Check if an arrow key is pressed.
-2. If it is, tell Grant to move left.
+2. If it is, tell Grant to look and move in that direction.
 3. Play the "run" animation.
 4. If no key is pressed, play the "stand" animation.
 
@@ -105,8 +98,8 @@ function move () {
 }
 ```
 
-For the last step, we will play the animations to make Grant run or stand. Here's
-how to do that.
+Now that Grant is moving, we can use the `play_run_animation` function to play
+the animation that makes him look like he's running.
 
 ```js
 function move () {
@@ -125,3 +118,115 @@ function move () {
 ```
 
 Great job! You finished the move function!
+
+### Step 2: Develop a jump function.
+Now that our character can move, we need to figure out how to get over the level's
+obstacles. We can do this by programming a function to make Grant jump.
+
+We will want to add a new function to the code area named "jump", and write all of the following code inside it.
+
+Step 1: Check if the "up" arrow key is pressed. If it is, and Grant isn't already jumping, go to step 2.
+```js
+if (check_key(KEYCODE_UP) && !grant.jumping) {
+
+}
+```
+
+Step 2: Set `grant.jumping` to `true`. This will prevent jumping in the air. If you want to make Grant double-jump, you can remove this part.
+
+We can also do step 3 here. Set Grant's `ySpeed` to a negative number. We will be adding Grant's `ySpeed` to his `y` position every frame. A value of -7 means he'll start to move up 7 pixels at a time.
+
+```js
+if (check_key(KEYCODE_UP) && !grant.jumping) {
+    grant.jumping = true;
+    grant.ySpeed = -7;
+}
+```
+
+Step 4: Outside the if statement, add `grant.ySpeed` to `grant.y`. This will start to move Grant towards the top of the screen.
+
+`grant.y += grant.ySpeed;`
+
+Step 5: If Grant is in the air, add `gravity` to his `ySpeed` and play the "jump" animation.
+
+```js
+if (grant.in_air()) {
+    grant.ySpeed += gravity;
+    grant.gotoAndPlay("jump");
+}
+```
+
+Step 6: If Grant isn't in the air, set his `ySpeed` to 0 and `grant.jumping` to false.
+
+```js
+else {
+   grant.ySpeed = 0;
+   grant.jumping = false;
+}
+```
+
+Step 7: Last, outside the if statement, check if Grant's head has collided with a block. If it has, set his `ySpeed` to `gravity`. This will make him fall back down instead of jumping through the block.
+
+
+```js
+if (grant.head_collided()) {
+  grant.ySpeed = gravity;
+}
+```
+
+Great work! We have one more step to help us complete the game. We need to collect each flag at the end of the level so we can move on to the next level.
+
+### Step 3: Write a function to collect the flag at the end of the level.
+This function is pretty simple, but it will help us beat the game.
+
+Here are the steps you'll need to code to collect the flag.
+
+Step 1: Remove the flag object. This will prevent us from accidentally touching the flag twice. To do this, we can use the `remove_object` function and give it the `flag` variable.
+
+```js
+remove_object(flag);
+```
+
+Step 2: Create a timer that will send us to the next level after a short delay.
+
+We want to wait before going to the next level so our players can see that they've collected the flag.
+
+```js
+setTimeout(function () {
+
+}, 500);
+```
+
+Step 3: Inside the timer, increase the `current_level` variable by 1 and use the `load_level` function to load the next level.
+
+```js
+current_level += 1;
+load_level(current_level);
+```
+
+
+```js
+function hit_flag() {
+  remove_object(flag);
+  setTimeout(function () {
+    current_level += 1;
+    load_level(current_level);
+  }, 500);
+}
+```
+
+## Extras!
+----------
+
+There are a couple more things you can do with this game.
+
+1. Use the `switch_character()` function to change characters. There are four options. "grant", "jill", "ada", and "mario".
+2. Create a `shoot` function. You can shoot by using the spacebar.
+3. Try changing the values of Grant's movement speed and jump speed. You can see it in real-time by editing the code and clicking on the canvas.
+
+```js
+function shoot() {
+  bullet = add_bullet();
+  bullet.xSpeed = 7 * grant.scaleX;
+}
+```
