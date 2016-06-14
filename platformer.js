@@ -1,5 +1,6 @@
 var stage = new createjs.Stage("game-canvas");
 var loader;
+var loading = false;
 var w, h;
 var sky;
 var keys = {};
@@ -42,25 +43,10 @@ function keyup(event) {
 function init() {
   w = stage.canvas.width;
   h = stage.canvas.height;
-  manifest = [
-    {src: "http://codechangers.com/files/camp/assets/art/spritesheet_mario.png", id: "mario"},
-    {src: "http://codechangers.com/files/camp/assets/art/spritesheet_boy.png", id: "grant"},
-    {src: "http://codechangers.com/files/camp/assets/art/spritesheet_girl.png", id: "ada"},
-    {src: "http://codechangers.com/files/camp/assets/art/spritesheet_girl_2.png", id: "jill"},
-    {src: "./assets/art/spritesheet_fox.png", id: "fox"},
-    {src: "./assets/art/spritesheet_robot.png", id: "isaac"},
-    {src: "./assets/art/spritesheet_cat.png", id: "satoshi"},
-    {src: "http://codechangers.com/files/camp/assets/art/flag_red.png", id: "flag"},
-    {src: "http://codechangers.com/files/camp/assets/art/grass_top.png", id: "grass_top"},
-    {src: "http://codechangers.com/files/camp/assets/art/grass_mid.png", id: "grass_mid"},
-    {src: "http://codechangers.com/files/camp/assets/art/background.png", id: "sky"},
-    {src: "http://codechangers.com/files/camp/assets/art/background.png", id: "sky_2"},
-    {src: "http://codechangers.com/files/camp/assets/art/background.png", id: "sky_3"},
-  ];
 
   loader = new createjs.LoadQueue(false);
   loader.addEventListener("complete", handleComplete);
-  loader.loadManifest(manifest, true, "http://codechangers.com/files/camp/assets/art/");
+  loader.loadManifest(tile_manifest, true, "http://codechangers.com/files/camp/assets/art/");
 }
 
 function addStageChildren() {
@@ -72,7 +58,7 @@ function addStageChildren() {
 
 function handleComplete() {
   sky = new createjs.Shape();
-  sky.graphics.beginBitmapFill(loader.getResult("sky")).drawRect(0, 0, 1667, 500);
+  sky.graphics.beginBitmapFill(loader.getResult("bg_city")).drawRect(0, 0, 1667, 500);
   stage.addChild(sky);
 
   grant_spriteSheet = new createjs.SpriteSheet({
@@ -141,7 +127,7 @@ function handleComplete() {
     if (sensor_a === false && sensor_b === false) {
       return false;
     } else {
-      if (grant.ySpeed < 0) {
+      if (grant.ySpeed < 0 && grant.y > 50) {
         grant.y = sensor_a.y + sensor_a.height || sensor_b.y + sensor_b.height;
         grant.y += gravity;
       }
@@ -160,7 +146,7 @@ function handleComplete() {
     if (sensor_a === false && sensor_b === false) {
       return true;
     } else {
-      if (grant.ySpeed >= 0) {
+      if (grant.ySpeed >= 0 && grant.y > 0) {
         grant.y = sensor_a.y - 50 || sensor_b.y - 50;
       }
       return false;
@@ -191,6 +177,14 @@ function handleComplete() {
     grant.gotoAndPlay("stand");
   };
 
+  grant.play_jump_animation = function () {
+    grant.gotoAndPlay("jump");
+  };
+
+  grant.play_jump_animation = function () {
+    grant.gotoAndPlay("win");
+  };
+
 	createjs.Ticker.timingMode = createjs.Ticker.RAF;
 	createjs.Ticker.addEventListener("tick", tick);
 
@@ -206,11 +200,15 @@ function tick(event) {
     jump();
     handle_bullets();
     grant.x = Math.floor(grant.x);
+    if (grant.y === NaN) {
+      grant.y = 0;
+    }
     if (grant.y < 0) {
       grant.y = 0;
       grant.ySpeed = 0;
     }
-    if (grant.y > h) {
+    if (grant.y > h && !loading) {
+      loading = true;
       setTimeout(function () {
         load_level(current_level)
       }, 750);
@@ -222,6 +220,9 @@ function tick(event) {
     if (grant.x > ((stage.x + w) / 2) && grant.x < level.width - w / 2) {
       // grant.x = w;
       stage.x = -grant.x + (w / 2);
+    }
+    if (grant.x > level.width - 25) {
+      grant.x = level.width - 25;
     }
     stage.update(event);
   }
@@ -273,6 +274,7 @@ function switch_character(character) {
     case "isaac":
     case "satoshi":
     case "ada":
+    case "grace":
       new_spriteSheet = new createjs.SpriteSheet({
         framerate: 6,
         "images": [loader.getResult(character)],

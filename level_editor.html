@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Platform Game</title>
+        <title>CodeChangers Level Editor</title>
         <script src="https://code.createjs.com/createjs-2015.11.26.combined.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/humane-js/3.2.2/humane.min.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/humane-js/3.2.2/themes/flatty.min.css" media="screen" title="no title" charset="utf-8">
@@ -44,9 +44,7 @@
             }
             canvas {
                 position: relative;
-                width: 50vw !important;
-                float: right;
-                height: 95vh;
+                height: 500px;
             }
             #pause-overlay {
                 background: rgba(0, 0, 0, 0.4);
@@ -75,20 +73,44 @@
                 min-height: 16px;
             }
         </style>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/mode/javascript/javascript.min.js"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.min.css"></script>
     </head>
     <body>
         <div class="nav">
             <img id="img-logo" src="http://codechangers.com/files/camp/assets/logo.png">
             <!-- <button id="run-code">&#9654; Run Code</button> -->
-            <button id="load-level">Load Level</button>
-            <button id="save-code">&#128190; Save Code</button>
+            <button id="save-level">&#128190; Save Level</button>
         </div>
-        <textarea id="code-area"></textarea>
-        <div id="pause-overlay"><h1>&#9208; Paused</h1></div>
-        <canvas id="game-canvas" width="500" height="500"></canvas>
+        <style>
+            .button-container {
+                float: left;
+            }
+            .button-container button {
+                display: block;
+                width: 150px;
+                height: 50px;
+                border: 0;
+            }
+            .button-container h5 {
+                font-family: "Open Sans", sans-serif;
+                padding-left: 15px;
+            }
+        </style>
+        <div class="container">
+            <div class="button-container">
+                <h5>Themes</h5>
+                <button onclick="changeTileset('city')">City</button>
+                <button onclick="changeTileset('cave')">Cave</button>
+                <button onclick="changeTileset('circuits')">Circuit Board</button>
+                <h5>Tiles</h5>
+                <button onclick="changeTile(0)">Null</button>
+                <button onclick="changeTile(1)">Grass Top</button>
+                <button onclick="changeTile(2)">Grass Mid</button>
+                <button onclick="changeTile(3)">Flag</button>
+                <button onclick="changeTile(4)">Grant</button>
+            </div>
+            <canvas id="game-canvas" height="500"></canvas>
+        </div>
+
         <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
         <script>
           // Initialize Firebase
@@ -100,66 +122,8 @@
           };
           var app = firebase.initializeApp(config);
         </script>
+
         <script src="tiles.js"></script>
-        <script src="levels.js"></script>
-        <!-- <script src="student.js"></script> -->
-        <script src="platformer.js"></script>
-        <script>
-            humane.timeout = 1250;
-
-            var btnLoad = document.getElementById("load-level");
-            var btnSave = document.getElementById("save-code");
-            var canvas = document.getElementById("game-canvas");
-            var textarea = document.getElementById("code-area");
-            var overlay = document.getElementById("pause-overlay");
-
-            var editor = CodeMirror.fromTextArea(textarea, {
-                lineNumbers: true,
-                mode: "javascript",
-            });
-            ev = window.eval;
-            canvas.focus();
-            function load_code() {
-                if(localStorage.getItem("code")) {
-                    editor.setValue(localStorage.getItem("code"));
-                    ev(localStorage.getItem("code"));
-                }
-            }
-
-            function run_code() {
-                var code = editor.getValue();
-                ev(code);
-            }
-
-            btnLoad.addEventListener('click', function () {
-                code = prompt("Enter a level code.");
-                app.database().ref("levels/" + code).once('value').then(function(snapshot) {
-                    if (snapshot.val()) {
-                        level = snapshot.val();
-                        load_level_helper(level);
-                        humane.log("Loaded \"" + code + "\".")
-                    } else {
-                        alert("Oops! That level doesn't exist.")
-                    }
-                });
-            });
-            btnSave.addEventListener('click', function () {
-                localStorage.setItem("code", editor.getValue());
-                humane.log("Code was saved.")
-            });
-
-            editor.getInputField().onfocus = function () {
-                createjs.Ticker.setPaused(true);
-                overlay.style.display = "block";
-            }
-
-            function unpause() {
-                editor.getInputField().blur();
-                createjs.Ticker.setPaused(false);
-                overlay.style.display = "none";
-                run_code()
-            }
-            overlay.onclick = unpause;
-        </script>
+        <script src="level_editor.js"></script>
     </body>
 </html>
