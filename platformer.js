@@ -106,8 +106,37 @@ function handleComplete() {
   };
 
   grant.check_collision = function (bounds) {
-    for (var i = 0; i < stage_tiles.length; i++) {
-      tile = stage_tiles[i];
+    row_length = level.tiles[0].length;
+    yPos = row_length * ((grant.y - grant.y % 50) / 50);
+    xPos = (grant.x - grant.x % 50) / 50;
+    /*
+      [a, b, c]
+      [d, e, f]
+      [g, h, i]
+    */
+    tiles_to_check = [];
+    if (Math.ceil(grant.y) > 50) {
+      tiles_to_check.push(stage_tiles[(yPos - row_length + xPos - 1)]); // a
+      tiles_to_check.push(stage_tiles[(yPos - row_length + xPos)]); // b
+      tiles_to_check.push(stage_tiles[(yPos - row_length + xPos + 1)]); // c
+    }
+
+    tiles_to_check.push(stage_tiles[(yPos + xPos - 1)]); // d
+    tiles_to_check.push(stage_tiles[(yPos + xPos)]); // e
+    tiles_to_check.push(stage_tiles[(yPos + xPos + 1)]); // f
+
+    if (grant.y < (level.tiles.length - 1) * 50) {
+      tiles_to_check.push(stage_tiles[(yPos + row_length + xPos - 1)]); // g
+      tiles_to_check.push(stage_tiles[(yPos + row_length + xPos)]); // h
+      tiles_to_check.push(stage_tiles[(yPos + row_length + xPos + 1)]); // i
+    } else {
+      return false;
+    }
+    for (var i = 0; i < tiles_to_check.length; i++) {
+      tile = tiles_to_check[i];
+      if (tile.name === null) {
+        continue;
+      }
       if (bounds.x < tile.x + tile.width &&
          bounds.x + bounds.width > tile.x &&
          bounds.y < tile.y + tile.height &&
@@ -115,6 +144,7 @@ function handleComplete() {
           if (tile.name == "flag") {
             hit_flag();
           }
+          // console.log(tile);
           return tile;
       }
     }
@@ -122,8 +152,8 @@ function handleComplete() {
   };
 
   grant.head_collided = function () {
-    sensor_a = grant.check_collision({x: grant.x + 2, y: grant.y - 2, height: 2, width: 1});
-    sensor_b = grant.check_collision({x: grant.x + 23, y: grant.y - 2, height: 2, width: 1});
+    sensor_a = grant.check_collision({x: grant.x + 2, y: grant.y - 5, height: 2, width: 1});
+    sensor_b = grant.check_collision({x: grant.x + 23, y: grant.y - 5, height: 2, width: 1});
     if (sensor_a === false && sensor_b === false) {
       return false;
     } else {
@@ -141,13 +171,19 @@ function handleComplete() {
     //     grant.y = Math.floor(grant.y - 1);
     //   }
     // }
-    sensor_a = grant.check_collision({x: grant.x + 2, y: grant.y + 48, height: 10, width: 1});
-    sensor_b = grant.check_collision({x: grant.x + 23, y: grant.y + 48, height: 10, width: 1});
+    sensor_a = grant.check_collision({x: grant.x + 2, y: grant.y + 48, height: 5, width: 1});
+    sensor_b = grant.check_collision({x: grant.x + 23, y: grant.y + 48, height: 5, width: 1});
     if (sensor_a === false && sensor_b === false) {
       return true;
     } else {
       if (grant.ySpeed >= 0 && grant.y > 0) {
-        grant.y = sensor_a.y - 50 || sensor_b.y - 50;
+        if (!sensor_a.y || isNaN(sensor_a.y)) {
+          sensor_a = {y: -1};
+        }
+        if (!sensor_b.y || isNaN(sensor_b.y)) {
+          sensor_b = {y: -1};
+        }
+        grant.y = Math.max(sensor_a.y - 50, sensor_b.y - 50);
       }
       return false;
     }
@@ -237,10 +273,38 @@ function check_key(keycode) {
 
 function handle_bullets() {
   for (var i = 0; i < bullets.length; i++) {
-    bullets[i].x += bullets[i].xSpeed;
-    if (bullets[i].x < 0 || bullets[i].x > (-stage.x + w)) {
-      stage.removeChild(bullets[i]);
+    bullet = bullets[i];
+    bullet.x += bullets[i].xSpeed;
+    if (bullet.x < 0 || bullet.x > (-stage.x + w)) {
+      stage.removeChild(bullet);
       bullets.splice(i, 1);
+    }
+    for (var n = 0; n < boxes.length; n++) {
+      box = boxes[n];
+      if (bullet.x < box.x + box.width &&
+         bullet.x + bullet.width > box.x &&
+         bullet.y < box.y + box.height &&
+         bullet.height + bullet.y > box.y) {
+           for (var e = 0; e < stage_tiles.length; e++) {
+             if (box === stage_tiles[e]) {
+               console.log("hello")
+               tile = new createjs.Shape();
+               tile.regX = 0;
+               tile.regY = 0;
+               tile.width = 50;
+               tile.height = 50;
+               tile.x = box.x;
+               tile.y = box.y;
+               tile.name = null;
+               stage.addChild(tile);
+               stage_tiles[e] = tile;
+             }
+           }
+           stage.removeChild(bullet);
+           stage.removeChild(box);
+           bullets.splice(i, 1);
+           boxes.splice(n, 1);
+      }
     }
   }
 }
@@ -250,6 +314,8 @@ function add_bullet() {
   bullet.graphics.beginFill("red").drawCircle(0, 0, 5);
   bullet.x = grant.x + 8;
   bullet.y = grant.y + 24;
+  bullet.width = 5;
+  bullet.height = 5;
   stage.addChild(bullet);
   bullet.xSpeed = 9 * grant.scaleX;
   bullets.push(bullet);
@@ -313,3 +379,22 @@ function debug_bounds() {
   s.y = grant.y;
   stage.addChild(s);
 }
+
+function debug_collision() {
+  for(var i = 0; i < tiles_to_check.length; i++) {
+    tile = tiles_to_check[i];
+    s = new createjs.Shape();
+    s.graphics.beginFill("red").drawRect(0, 0, 50, 50);
+    s.x = tile.x;
+    s.y = tile.y;
+    stage.addChild(s);
+  }
+  stage.update();
+}
+
+console.log((level.tiles[0].length * ((grant.y - grant.y % 50) / 50) - 1), (grant.x - grant.x % 50) / 50);
+console.log((level.tiles[0].length * ((grant.y - grant.y % 50) / 50) - 1), ((grant.x - grant.x % 50) / 50) - 1);
+console.log((level.tiles[0].length * ((grant.y - grant.y % 50) / 50) - 1), ((grant.x - grant.x % 50) / 50) + 1);
+console.log((level.tiles[0].length * ((grant.y - grant.y % 50) / 50) + 1), (grant.x - grant.x % 50) / 50);
+console.log((level.tiles[0].length * ((grant.y - grant.y % 50) / 50) + 1), ((grant.x - grant.x % 50) / 50) - 1);
+console.log((level.tiles[0].length * ((grant.y - grant.y % 50) / 50) + 1), ((grant.x - grant.x % 50) / 50) + 1);

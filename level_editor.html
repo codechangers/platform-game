@@ -78,13 +78,14 @@
         <div class="nav">
             <img id="img-logo" src="http://codechangers.com/files/camp/assets/logo.png">
             <!-- <button id="run-code">&#9654; Run Code</button> -->
+            <button id="goto-game">Back to Game</button>
             <button id="save-level">&#128190; Save Level</button>
         </div>
         <style>
             .button-container {
                 float: left;
             }
-            .button-container button {
+            .button-container .btn-theme {
                 display: block;
                 width: 150px;
                 height: 50px;
@@ -94,19 +95,31 @@
                 font-family: "Open Sans", sans-serif;
                 padding-left: 15px;
             }
+            #tile-buttons {
+                width: 150px;
+            }
+            button.btn-tile {
+                width: 50px;
+                height: 50px;
+                border: 0;
+                display: inline-block;
+            }
         </style>
         <div class="container">
             <div class="button-container">
                 <h5>Themes</h5>
-                <button onclick="changeTileset('city')">City</button>
-                <button onclick="changeTileset('cave')">Cave</button>
-                <button onclick="changeTileset('circuits')">Circuit Board</button>
+                <button class="btn-theme" onclick="changeTileset('city')">City</button>
+                <button class="btn-theme" onclick="changeTileset('cave')">Cave</button>
+                <button class="btn-theme" onclick="changeTileset('circuits')">Circuit Board</button>
+                <button class="btn-theme" onclick="changeTileset('space')">Space</button>
                 <h5>Tiles</h5>
-                <button onclick="changeTile(0)">Null</button>
-                <button onclick="changeTile(1)">Grass Top</button>
-                <button onclick="changeTile(2)">Grass Mid</button>
-                <button onclick="changeTile(3)">Flag</button>
-                <button onclick="changeTile(4)">Grant</button>
+                <div id="tile-buttons">
+                    <button class="btn-tile" onclick="changeTile(0)">Null</button>
+                    <button class="btn-tile" onclick="changeTile(1)">Grass Top</button>
+                    <button class="btn-tile" onclick="changeTile(2)">Grass Mid</button>
+                    <button class="btn-tile" onclick="changeTile(3)">Flag</button>
+                    <button class="btn-tile" onclick="changeTile(4)">Grant</button>
+                </div>
             </div>
             <canvas id="game-canvas" height="500"></canvas>
         </div>
@@ -121,6 +134,10 @@
             storageBucket: "",
           };
           var app = firebase.initializeApp(config);
+          var btnGotoGame = document.getElementById("goto-game");
+          btnGotoGame.addEventListener("click", function () {
+            document.location.href = "index.html";
+          });
         </script>
 
         <script src="tiles.js"></script>

@@ -85,6 +85,7 @@
             <!-- <button id="run-code">&#9654; Run Code</button> -->
             <button id="load-level">Load Level</button>
             <button id="save-code">&#128190; Save Code</button>
+            <button id="goto-editor">Go to Editor</button>
         </div>
         <textarea id="code-area"></textarea>
         <div id="pause-overlay"><h1>&#9208; Paused</h1></div>
@@ -107,6 +108,7 @@
         <script>
             humane.timeout = 1250;
 
+            var btnGotoEditor = document.getElementById("goto-editor");
             var btnLoad = document.getElementById("load-level");
             var btnSave = document.getElementById("save-code");
             var canvas = document.getElementById("game-canvas");
@@ -131,7 +133,13 @@
                 ev(code);
             }
 
+            btnGotoEditor.addEventListener("click", function () {
+                localStorage.setItem("code", editor.getValue());
+                document.location.href = "level_editor.html";
+            });
+
             btnLoad.addEventListener('click', function () {
+                btnLoad.blur()
                 code = prompt("Enter a level code.");
                 app.database().ref("levels/" + code).once('value').then(function(snapshot) {
                     if (snapshot.val()) {

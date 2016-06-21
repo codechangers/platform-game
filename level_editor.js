@@ -28,6 +28,7 @@ function handleComplete() {
   stage.addChild(sky);
 
   drawGrid();
+  changeTileset("city")
 }
 
 init()
@@ -81,6 +82,24 @@ function changeTile(num) {
 function changeTileset(tileset_name) {
   current_tileset = tilemaps[tileset_name];
   redrawMap();
+  tile_buttons = document.getElementById("tile-buttons");
+  tile_parent = tile_buttons.parentElement;
+  tile_buttons.parentElement.removeChild(tile_buttons);
+  tile_buttons = document.createElement("div");
+  tile_buttons.setAttribute("id", "tile-buttons");
+  for (var n = 0; n < current_tileset.tiles.length; n++) {
+    btn = document.createElement("button");
+    btn.className = "btn-tile";
+    if (current_tileset.tiles[n] !== null) {
+      btn.setAttribute("style", "background: url('" + loader.getResult(current_tileset.tiles[n]).getAttribute("src") + "')");
+      btn.setAttribute("onclick", "changeTile(" + n + ")");
+    } else {
+      btn.setAttribute("style", "background: url('" + loader.getResult("delete").getAttribute("src") + "')");
+      btn.setAttribute("onclick", "changeTile(" + n + ")");
+    }
+    tile_buttons.appendChild(btn);
+  }
+  tile_parent.appendChild(tile_buttons);
 }
 
 function buildMapArray() {
@@ -119,5 +138,13 @@ save_button.addEventListener("click", function () {
     map: current_tileset.name,
     tiles: buildMapArray(),
   };
-  app.database().ref("levels/" + "test").set(built_level);
-})
+  var code = prompt("Enter your level name. Don't use spaces or uppercase letters.");
+  while (code.length === 0) {
+    var code = prompt("Oops! You forgot to enter a name. Enter your level name. Don't use spaces or uppercase letters.");
+  }
+  if (code.length > 0) {
+    code = code.replace(" ", "").replace("/", "").replace("#", "").toLowerCase();
+    app.database().ref("levels/" + code).set(built_level);
+    alert("Your level is saved at the code: " + code + ".");
+  }
+});

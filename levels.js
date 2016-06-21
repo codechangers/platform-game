@@ -9,7 +9,7 @@ var local_levels = [
       [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2],
       [2, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 2],
       [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2],
-      [2, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 2, 2, 2],
+      [2, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2],
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
     ],
@@ -69,6 +69,7 @@ function load_level_helper(level) {
     stage.removeChild(bullets[n]);
   }
   bullets = [];
+  boxes = [];
 
   // Build the level tiles.
   console.log(level.tiles[0], level.tiles[0].length, level.tiles[0].length * 50);
@@ -77,31 +78,35 @@ function load_level_helper(level) {
   count = 0;
   for (var y = 0; y < _lvl.length; y++) {
     for (var x = 0; x < _lvl[y].length; x++) {
+      bg = loader.getResult(current_tileset.tiles[_lvl[y][x]]);
+      tile = new createjs.Shape();
+      tile.regX = 0;
+      tile.regY = 0;
+      tile.width = 50;
+      tile.height = 50;
+      // console.log(bg);
+      if (current_tileset.tiles[_lvl[y][x]] !== null && current_tileset.tiles[_lvl[y][x]] !== "grant") {
+        tile.graphics.beginBitmapFill(bg).drawRect(0, 0, 50, 50);
+      }
+      tile.x = x * 50;
+      tile.y = y * 50;
+      tile.name = tilemaps[level.map].tiles[_lvl[y][x]];
+      tile.id = count;
       if (current_tileset.tiles[_lvl[y][x]] === "grant") {
-        console.log("This one is grant.", x, y)
+        // Create a null tile in grant's place.
+        tile.name = null;
         grant.x = x * 50;
         grant.y = y * 50;
       }
-      if (current_tileset.tiles[_lvl[y][x]] !== null && current_tileset.tiles[_lvl[y][x]] !== "grant") {
-        bg = loader.getResult(current_tileset.tiles[_lvl[y][x]]);
-        tile = new createjs.Shape();
-        tile.regX = 0;
-        tile.regY = 0;
-        tile.width = 50;
-        tile.height = 50;
-        // console.log(bg);
-        tile.graphics.beginBitmapFill(bg).drawRect(0, 0, 50, 50);
-        tile.x = x * 50;
-        tile.y = y * 50;
-        tile.name = tilemaps[level.map].tiles[_lvl[y][x]];
-        tile.id = count;
-        if (tile.name === "flag") {
-          flag = tile;
-        }
-        stage.addChild(tile);
-        stage_tiles.push(tile);
-        count += 1;
+      if (tile.name === "flag") {
+        flag = tile;
       }
+      if (tile.name === "box") {
+        boxes.push(tile);
+      }
+      stage.addChild(tile);
+      stage_tiles.push(tile);
+      count += 1;
     }
   }
   loading = false;
@@ -119,22 +124,4 @@ function load_level(num) {
 
   level = local_levels[num];
   load_level_helper(level);
-}
-
-function load_network_level(level_code) {
-  load_level_helper({
-    map: "cave",
-    tiles: [
-      [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
-      [2,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
-      [2, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 2],
-      [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
-      [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
-      [2, 0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2],
-      [2, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2],
-      [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
-      [2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
-      [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
-    ]
-  });
 }
